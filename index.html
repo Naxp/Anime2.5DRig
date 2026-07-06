@@ -147,8 +147,8 @@ header h1{letter-spacing:.05em}
       <div class="row"><label>視線 X</label><input type="range" id="pEyeX" min="-1" max="1" step="0.01" value="0"><span class="val"></span></div>
       <div class="row"><label>視線 Y</label><input type="range" id="pEyeY" min="-1" max="1" step="0.01" value="0"><span class="val"></span></div>
       <div class="row"><label>瞳スケール</label><input type="range" id="pIrisScale" min="0.5" max="1.3" step="0.01" value="1"><span class="val"></span></div>
-      <div class="row"><label>左目スケール</label><input type="range" id="pEyeScaleL" min="0.5" max="1.5" step="0.01" value="1"><span class="val"></span></div>
-      <div class="row"><label>右目スケール</label><input type="range" id="pEyeScaleR" min="0.5" max="1.5" step="0.01" value="1"><span class="val"></span></div>
+      <div class="row"><label>閉じ目ｽｹｰﾙ左</label><input type="range" id="pEyeScaleL" min="0.5" max="1.5" step="0.01" value="1"><span class="val"></span></div>
+      <div class="row"><label>閉じ目ｽｹｰﾙ右</label><input type="range" id="pEyeScaleR" min="0.5" max="1.5" step="0.01" value="1"><span class="val"></span></div>
       <div class="row"><label>閉じやすさ</label><input type="range" id="pEyeEase" min="0" max="1" step="0.01" value="0.3"><span class="val"></span></div>
       <div class="row"><label>差分 上下</label><input type="range" id="pEyeCY" min="-1" max="1" step="0.01" value="0"><span class="val"></span></div>
       <div class="row"><label>差分 角度</label><input type="range" id="pEyeCAng" min="-1" max="1" step="0.01" value="0"><span class="val"></span></div>
@@ -658,8 +658,8 @@ function deform(L, e){
   for(let k=0;k<n;k+=2){
     let x=b[k], y=b[k+1];
     const vi=k>>1;
-    // --- per-eye / mouth scale ---
-    if(EA && (bn==='eyewhite'||bn==='irides'||bn==='eyelash'||bn==='eye_close')){
+    // --- closed-eye / mouth scale ---
+    if(EA && bn==='eye_close'){
       const sE=eyeSide==='L'?e.eyeScaleL:e.eyeScaleR;
       if(sE!==1){ const cxE=(EA.x0+EA.x1)/2, cyE=(EA.y0+EA.y1)/2;
         x=cxE+(x-cxE)*sE; y=cyE+(y-cyE)*sE; }
