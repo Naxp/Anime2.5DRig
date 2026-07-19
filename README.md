@@ -58,7 +58,7 @@ Layer names (Japanese "のコピー" and full-width characters are auto-normaliz
 
 - **Splitting hair across multiple layers**: Use `front hair_1`, `front hair_2`, `back hair_1`, etc. with `_number` suffixes. Each layer becomes an independent strand group with its own physics (strand count is auto-determined from layer width).
 - Layers with non-convention names are still loaded (position-based estimation of head/torso, with follow behavior only).
-- Layer groups (folders) are **not supported**. Use a flat layer structure.
+- Layer groups (folders) are now supported (the rig recurses into folder children). Flatten still works the same.
 - **Neck and torso**: Using see-through output as-is can make it difficult to resolve the neck-torso depth relationship, which may cause artifacts at the boundary during animation. If this happens, merging the neck into the torso layer (no neck layer, with the neck included in topwear) tends to work better.
 - Square canvas is recommended (tested with 768×768 to 2048×2048).
 

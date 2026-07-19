@@ -125,17 +125,21 @@ header h1{letter-spacing:.05em}
 		        <div class="tg on" id="tgPhys">Hair Physics</div>
 		        <div class="tg on" id="tgSigh">Sighs</div>
 	      </div>
-	    </div>
-	    <div class="sec"><h2>Expression Presets</h2>
-	      <div class="btns">
-	        <button class="btn" data-preset="neutral">Neutral</button>
-	        <button class="btn" data-preset="smile">Smile</button>
-	        <button class="btn" data-preset="usume">Squint</button>
-	        <button class="btn" data-preset="surprise">Surprise</button>
-	        <button class="btn" data-preset="jito">Squint-Eye</button>
-	        <button class="btn" data-preset="winkL">Wink L</button>
-	        <button class="btn" data-preset="winkR">Wink R</button>
-	      </div>
+		    </div>
+		    <div class="sec"><h2>Expression Presets</h2>
+		      <div class="btns">
+		        <button class="btn" data-preset="neutral">Neutral</button>
+		        <button class="btn" data-preset="smile">Smile</button>
+		        <button class="btn" data-preset="usume">Squint</button>
+		        <button class="btn" data-preset="surprise">Surprise</button>
+		        <button class="btn" data-preset="jito">Squint-Eye</button>
+		        <button class="btn" data-preset="winkL">Wink L</button>
+		        <button class="btn" data-preset="winkR">Wink R</button>
+		      </div>
+		      <div style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px">
+		        <div id="userPresets" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px"></div>
+		        <div class="btns"><button class="btn" id="btnSavePreset">+ Save Current</button></div>
+		      </div>
 	    </div>
 	    <div class="sec"><h2>Face Angle</h2>
 	      <div class="row"><label>Angle X</label><input type="range" id="pAngleX" min="-1" max="1" step="0.01" value="0"><span class="val"></span></div>
@@ -166,7 +170,12 @@ header h1{letter-spacing:.05em}
 	      <div class="row"><label>Closed Y Offset</label><input type="range" id="pMouthCY" min="-1" max="1" step="0.01" value="0"><span class="val"></span></div>
 	      <div class="row"><label>Close Ease</label><input type="range" id="pMouthEase" min="0" max="1" step="0.01" value="0.45"><span class="val"></span></div>
 	      <div class="row"><label>Closed Angle</label><input type="range" id="pMouthCAng" min="-1" max="1" step="0.01" value="0"><span class="val"></span></div>
-	      <div class="row"><label>Mouth Scale</label><input type="range" id="pMouthScale" min="0.5" max="1.5" step="0.01" value="1"><span class="val"></span></div>
+		      <div class="row"><label>Mouth Scale</label><input type="range" id="pMouthScale" min="0.5" max="1.5" step="0.01" value="1"><span class="val"></span></div>
+		      <div class="row" style="border-top:1px dashed var(--line);padding-top:6px;margin-top:6px"><label>Viseme A</label><input type="range" id="pVisemeA" min="0" max="1" step="0.01" value="0"><span class="val"></span></div>
+		      <div class="row"><label>Viseme I</label><input type="range" id="pVisemeI" min="0" max="1" step="0.01" value="0"><span class="val"></span></div>
+		      <div class="row"><label>Viseme U</label><input type="range" id="pVisemeU" min="0" max="1" step="0.01" value="0"><span class="val"></span></div>
+		      <div class="row"><label>Viseme E</label><input type="range" id="pVisemeE" min="0" max="1" step="0.01" value="0"><span class="val"></span></div>
+		      <div class="row"><label>Viseme O</label><input type="range" id="pVisemeO" min="0" max="1" step="0.01" value="0"><span class="val"></span></div>
 	    </div>
 	    <div class="sec"><h2>Front Hair</h2>
 	      <div class="row"><label>Sway</label><input type="range" id="pFhAmp" min="0" max="3" step="0.01" value="2"><span class="val"></span></div>
@@ -182,14 +191,26 @@ header h1{letter-spacing:.05em}
 	      <div class="row"><label>Chest Bounce</label><input type="range" id="pBust" min="0" max="4" step="0.01" value="2.5"><span class="val"></span></div>
 	      <div class="row"><label>Chest Pos Y</label><input type="range" id="pBustY" min="-3" max="3" step="0.01" value="1"><span class="val"></span></div>
 	      <div class="row"><label>Back Hair Sway</label><input type="range" id="pPhysAmp" min="0" max="3" step="0.01" value="2"><span class="val"></span></div>
-	      <div class="row"><label>Back Hair Softness</label><input type="range" id="pSoft" min="0" max="3" step="0.01" value="2"><span class="val"></span></div>
-	    </div>
-	    <div class="sec"><h2>Utilities</h2>
+		      <div class="row"><label>Back Hair Softness</label><input type="range" id="pSoft" min="0" max="3" step="0.01" value="2"><span class="val"></span></div>
+			      <div class="row"><label>Wind Direction</label><input type="range" id="pWindX" min="-1" max="1" step="0.01" value="0"><span class="val"></span></div>
+		    </div>
+		    <div class="sec"><h2>Gestures</h2>
+		      <div class="btns">
+		        <button class="btn" data-gesture="idle">Idle</button>
+		        <button class="btn" data-gesture="wave">Wave</button>
+		        <button class="btn" data-gesture="peace">Peace</button>
+		        <button class="btn" data-gesture="think">Thinking</button>
+		        <button class="btn" data-gesture="point">Point</button>
+		      </div>
+		    </div>
+		    <div class="sec"><h2>Utilities</h2>
 	      <div class="btns">
-	        <button class="btn" id="btnReset">Reset Values</button>
-	        <button class="btn" id="btnSavePsd">Save Clean PSD</button>
-	      </div>
-	      <div id="utilStatus" style="font-size:11px;color:var(--sub);margin-top:6px"></div>
+		        <button class="btn" id="btnReset">Reset Values</button>
+		        <button class="btn" id="btnSavePsd">Save Clean PSD</button>
+		        <button class="btn" id="btnRecord" style="border-color:var(--acc);color:var(--acc2)" data-recording="0">&#9679; Record</button>
+		      </div>
+		      <div id="utilStatus" style="font-size:11px;color:var(--sub);margin-top:6px"></div>
+		      <div id="recDur" style="font-size:10px;color:var(--acc2);margin-top:4px;display:none"></div>
 	    </div>
 	    <div class="sec"><h2>Background</h2>
 	      <div class="btns">
@@ -384,8 +405,10 @@ window.addEventListener('drop',async e=>{
 const P = { angleX:0, angleY:0, angleZ:0, eyeOpenL:1, eyeOpenR:1, eyeX:0, eyeY:0, brow:0,
             mouthOpen:0, mouthForm:0, mouthCY:0, body:0, physAmp:2, soft:2,
             browAngL:0, browAngR:0, browAngSym:0, bangL:0, bangC:0, bangR:0,
-            armY:0, armPos:0, bust:2.5, bustY:1, irisScale:1, mouthEase:0.45, eyeEase:0.3,
-            fhAmp:2, fhSoft:0.4, eyeCY:0, eyeCAng:0, mouthCAng:0, eyeScaleL:1, eyeScaleR:1, mouthScale:1 };
+            armY:0, armPos:0, armYL:0, armYR:0, armPosL:0, armPosR:0,
+            bust:2.5, bustY:1, irisScale:1, mouthEase:0.45, eyeEase:0.3,
+            fhAmp:2, fhSoft:0.4, eyeCY:0, eyeCAng:0, mouthCAng:0, eyeScaleL:1, eyeScaleR:1, mouthScale:1,
+            visemeA:0, visemeI:0, visemeU:0, visemeE:0, visemeO:0, windX:0 };
 const DEFAULTS = Object.assign({}, P);
 let lastPsd=null, lastPre=null;
 const T = Object.assign({}, P);
@@ -399,7 +422,9 @@ const sliders = { pAngleX:'angleX',pAngleY:'angleY',pAngleZ:'angleZ',pEyeL:'eyeO
   pBangL:'bangL',pBangC:'bangC',pBangR:'bangR',pArmY:'armY',pArmPos:'armPos',
   pBust:'bust',pBustY:'bustY',pIrisScale:'irisScale',pMouthEase:'mouthEase',pEyeEase:'eyeEase',
   pFhAmp:'fhAmp',pFhSoft:'fhSoft',pEyeCY:'eyeCY',pEyeCAng:'eyeCAng',pMouthCAng:'mouthCAng',
-  pEyeScaleL:'eyeScaleL',pEyeScaleR:'eyeScaleR',pMouthScale:'mouthScale' };
+  pEyeScaleL:'eyeScaleL',pEyeScaleR:'eyeScaleR',pMouthScale:'mouthScale',
+  pVisemeA:'visemeA',pVisemeI:'visemeI',pVisemeU:'visemeU',pVisemeE:'visemeE',pVisemeO:'visemeO',
+  pWindX:'windX' };
 for(const id in sliders){
   const el=document.getElementById(id), key=sliders[id], v=el.parentNode.querySelector('.val');
   const upd=()=>{ T[key]=parseFloat(el.value); v.textContent=el.value; }; el.addEventListener('input',upd); upd();
@@ -451,12 +476,104 @@ document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click'
 	    st.textContent='Clean PSD saved ('+(blob.size/1e6).toFixed(1)+'MB / denoised+trimmed)';
 	  }catch(err){ st.textContent='Export error: '+err.message; }
 	});
-document.querySelectorAll('[data-bg]').forEach(b=>b.addEventListener('click',()=>{
-  const s=document.getElementById('stage'); s.className='';
-  if(b.dataset.bg==='checker')s.classList.add('checker');
-  if(b.dataset.bg==='green')s.classList.add('green');
-  if(b.dataset.bg==='dark')s.style.background='#14151c'; else s.style.background='';
-}));
+	(function(){ // WebM recording
+	  var btn=document.getElementById('btnRecord'), durEl=document.getElementById('recDur');
+	  btn.addEventListener('click',function(){
+	    if(recorder){
+	      recorder.stop(); btn.dataset.recording='0'; btn.innerHTML='&#9679; Record'; durEl.style.display='none';
+	      return;
+	    }
+	    var st=document.getElementById('utilStatus');
+	    try{
+	      var stream=cv.captureStream(30);
+	      recChunks=[]; recStart=Date.now();
+	      var mt='video/webm;codecs=vp9'; if(!MediaRecorder.isTypeSupported(mt)) mt='video/webm;codecs=vp8';
+	      recorder=new MediaRecorder(stream,{mimeType:mt});
+	      recorder.ondataavailable=function(e){ if(e.data.size) recChunks.push(e.data); };
+	      recorder.onstop=function(){
+	        var blob=new Blob(recChunks,{type:'video/webm'});
+	        var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+	        a.download='avatar_'+new Date().toISOString().slice(0,19).replace(/[:-]/g,'')+'.webm';
+	        a.click(); setTimeout(function(){URL.revokeObjectURL(a.href);},5000);
+	        st.textContent='WebM saved ('+(blob.size/1e6).toFixed(1)+'MB)';
+	        recorder=null;
+	      };
+	      recorder.start(100); // chunk every 100ms
+	      btn.dataset.recording='1'; btn.innerHTML='&#9632; Stop';
+	      st.textContent='Recording…';
+	      durEl.style.display='block';
+	    }catch(e){ st.textContent='Recording error: '+e.message; }
+	  });
+	  // update duration display
+	  setInterval(function(){
+	    if(recorder&&recorder.state==='recording'){
+	      var sec=(Date.now()-recStart)/1000; durEl.textContent=Math.floor(sec/60)+':'+(sec%60).toFixed(1).padStart(4,'0');
+	    }
+	  },100);
+	})();
+	document.querySelectorAll('[data-bg]').forEach(b=>b.addEventListener('click',()=>{
+	  const s=document.getElementById('stage'); s.className='';
+	  if(b.dataset.bg==='checker')s.classList.add('checker');
+	  if(b.dataset.bg==='green')s.classList.add('green');
+	  if(b.dataset.bg==='dark')s.style.background='#14151c'; else s.style.background='';
+	}));
+	document.querySelectorAll('[data-gesture]').forEach(b=>b.addEventListener('click',()=>{
+	  document.querySelectorAll('[data-gesture]').forEach(x=>x.classList.remove('active'));
+	  b.classList.add('active');
+		  gest.name=b.dataset.gesture; gest.t=0; gest.blend=0;
+		}));
+
+// ---------- user preset save/load ----------
+var PRESET_KEYS=Object.keys(P);
+function savePreset(name){
+  var data={};
+  PRESET_KEYS.forEach(function(k){ data[k]=T[k]; });
+  try{
+    var all=JSON.parse(localStorage.getItem('a25r.userPresets')||'{}');
+    all[name]=data;
+    localStorage.setItem('a25r.userPresets',JSON.stringify(all));
+    renderPresets();
+  }catch(e){}
+}
+function deletePreset(name){
+  try{
+    var all=JSON.parse(localStorage.getItem('a25r.userPresets')||'{}');
+    delete all[name];
+    localStorage.setItem('a25r.userPresets',JSON.stringify(all));
+    renderPresets();
+  }catch(e){}
+}
+function renderPresets(){
+  var el=document.getElementById('userPresets');
+  try{
+    var all=JSON.parse(localStorage.getItem('a25r.userPresets')||'{}');
+    el.innerHTML=Object.keys(all).map(function(name){
+      return '<span style="display:inline-flex;align-items:center;gap:2px">'+
+        '<button class="btn" data-upreset="'+name.replace(/"/g,'&quot;')+'" '+
+        'style="font-size:11px;padding:3px 8px">'+name+'</button>'+
+        '<span data-dpreset="'+name.replace(/"/g,'&quot;')+'" '+
+        'style="cursor:pointer;color:var(--sub);font-size:12px">&#10005;</span></span>';
+    }).join('');
+  }catch(e){ el.innerHTML=''; }
+}
+document.getElementById('btnSavePreset').addEventListener('click',function(){
+  var pname=prompt('Name this preset:');
+  if(pname&&pname.trim()) savePreset(pname.trim());
+});
+document.getElementById('userPresets').addEventListener('click',function(e){
+  var t=e.target;
+  if(t.dataset.upreset){ // load
+    try{
+      var all=JSON.parse(localStorage.getItem('a25r.userPresets')||'{}');
+      var data=all[t.dataset.upreset];
+      if(data) PRESET_KEYS.forEach(function(k){ if(data[k]!==undefined) setSlider(k,data[k]); });
+    }catch(e){}
+  }
+  if(t.dataset.dpreset){ // delete
+    deletePreset(t.dataset.dpreset);
+  }
+});
+renderPresets();
 
 // ---------- README viewer ----------
 function mdToHtml(md){
@@ -634,6 +751,24 @@ let gaze={ex:0,ey:0,nextSaccade:0,dwellPhase:0,targetPhase:0,next:0,smoothPursui
 let talkOn=false, talkV=0, talkTgt=0, nextTalkState=0, nextSyl=0;
 let sigh={active:false,t:0,nextAt:(typeof performance!=='undefined'?performance.now():0)+20000+Math.random()*20000}; // breath-coupled sigh/yawn
 let headPrevDX=0, headPrevPitch=0, headPrevVel=0; // velocity tracking for hair settle + brow micro
+let recorder=null, recChunks=[], recStart=0; // WebM recording state
+// gesture library + state machine
+const GESTURES = {
+  idle:   { dur:0,    L:[],    R:[] },
+  wave:   { dur:1200, L:[{t:0,ay:0,ap:0},{t:200,ay:-0.4,ap:0},{t:400,ay:-0.6,ap:0.2},{t:600,ay:-0.3,ap:0.1},{t:800,ay:-0.6,ap:0},{t:1000,ay:-0.4,ap:0},{t:1200,ay:0,ap:0}], R:[{t:0,ay:0,ap:0},{t:200,ay:-0.5,ap:0.3},{t:400,ay:-0.7,ap:0.5},{t:600,ay:-0.4,ap:0.3},{t:800,ay:-0.7,ap:0.4},{t:1000,ay:-0.5,ap:0.2},{t:1200,ay:0,ap:0}] },
+  peace:  { dur:800,  L:[],   R:[{t:0,ay:0,ap:0},{t:300,ay:-0.8,ap:0.6},{t:800,ay:-0.8,ap:0.6}] }, // hold
+  think:  { dur:1200, L:[],   R:[{t:0,ay:0,ap:0},{t:400,ay:-0.5,ap:0.8},{t:1200,ay:-0.5,ap:0.8}] }, // hold near chin
+  point:  { dur:800,  L:[],   R:[{t:0,ay:0,ap:0},{t:300,ay:-0.6,ap:0.3},{t:800,ay:-0.6,ap:0.3}] } // extend
+};
+function gestureLerp(curve,t){
+  if(!curve||!curve.length) return [0,0];
+  var p0=curve[0], p1=curve[curve.length-1];
+  for(var i=0;i<curve.length-1;i++){ if(t>=curve[i].t&&t<curve[i+1].t){ p0=curve[i]; p1=curve[i+1]; break; } }
+  var f=p1.t-p0.t?clamp((t-p0.t)/(p1.t-p0.t),0,1):0;
+  var s=smooth(f);
+  return [p0.ay+(p1.ay-p0.ay)*s, p0.ap+(p1.ap-p0.ap)*s];
+}
+let gest = { name:'idle', t:-1, blend:0 }; // -1 = inactive
 function clamp(v,a,b){return v<a?a:v>b?b:v}
 function smooth(t){t=clamp(t,0,1);return t*t*(3-2*t)}
 
@@ -643,6 +778,10 @@ function fadeAlpha(L,e){
   if(L.fade==='eyeClose'){ const v=L.side==='L'?e.eyeOpenL:e.eyeOpenR; return 1-smooth((v-(0.10+e.eyeEase*0.45))/0.15); }
   if(L.fade==='mouthOpen') return smooth((e.mouthOpen-(0.05+e.mouthEase*0.35))/0.12);
   if(L.fade==='mouthClose') return 1-smooth((e.mouthOpen-(0.05+e.mouthEase*0.35))/0.12);
+  if(L.fade==='viseme'){
+    var w = ({a:e.visemeA,i:e.visemeI,u:e.visemeU,e:e.visemeE,o:e.visemeO})[L.viseme||''] || 0;
+    return smooth(Math.min(1,w));
+  }
   return 1;
 }
 
@@ -705,10 +844,16 @@ function deform(L, e){
 	    if(L.fade==='mouthClose'){
 	      y += e.mouthCY*14*FS;   // form/shape not applied to closed mouth
 	      const thM=e.mouthCAng*0.35;
-      if(thM){ const ct=Math.cos(thM), st=Math.sin(thM), rx=x-A.mouth.cx, ry=y-A.mouth.cy;
-        x=A.mouth.cx+rx*ct-ry*st; y=A.mouth.cy+rx*st+ry*ct; }
-    }
-    if(bn==='face' && y>A.mouth.cy){
+	      if(thM){ const ct=Math.cos(thM), st=Math.sin(thM), rx=x-A.mouth.cx, ry=y-A.mouth.cy;
+	        x=A.mouth.cx+rx*ct-ry*st; y=A.mouth.cy+rx*st+ry*ct; }
+	    }
+	    if(L.fade==='viseme'){
+	      // subtle y-nudge per viseme weight — up for 'i','e', down for 'a','o','u'
+	      const w=({a:e.visemeA,i:e.visemeI,u:e.visemeU,e:e.visemeE,o:e.visemeO})[L.viseme||'']||0;
+	      const dyMap={a:1.5,i:-2.0,u:1.2,e:-1.0,o:1.8};
+	      y+=(dyMap[L.viseme]||0)*w*FS;
+	    }
+	    if(bn==='face' && y>A.mouth.cy){
       y += mo*6*FS*smooth((y-A.mouth.cy)/(A.face.y1-A.mouth.cy));
     }
     // --- head transform ---
@@ -731,13 +876,16 @@ function deform(L, e){
       const gx=(x-CHEST.cx)/CHEST.rx, gy=(y-(CHEST.cy+e.bustY*70*FS))/CHEST.ry;
       y += bounce.dy*e.bust*Math.exp(-gx*gx-gy*gy);
     }
-    // --- arms ---
-    if(bn==='handwear'){
-      const w=smooth((y-L.y)/L.h*1.15);
-      y -= e.armY*30*FS*w;
-      y += e.armPos*40*FS;
-      x += e.armY*6*FS*w*(x<NP.cx?1:-1);
-    }
+	    // --- arms ---
+	    if(bn==='handwear'){
+	      const w=smooth((y-L.y)/L.h*1.15);
+	      const isL=x<NP.cx;
+	      const ay=isL?(e.armY+e.armYL):(e.armY+e.armYR);
+	      const ap=isL?(e.armPos+e.armPosL):(e.armPos+e.armPosR);
+	      y -= ay*30*FS*w;
+	      y += ap*40*FS;
+	      x += ay*6*FS*w*(isL?1:-1);
+	    }
     // --- bang blocks ---
     if(L.bw&&L.su){ const m=Math.pow(L.su[vi],1.4)*22*FS;
       x += (e.bangL*L.bw[vi*3]+e.bangC*L.bw[vi*3+1]+e.bangR*L.bw[vi*3+2])*m;
@@ -892,12 +1040,28 @@ function tick(now){
 	      }
 	    }
 	  }
-	  // posture: head leads, body follows with lag
-	  if(auto.idle&&!camLive){
-	    tgt.angleZ+=0.04*Math.sin(t*2*Math.PI/6.2); // head initiates lean
-	    tgt.body +=0.08*Math.sin(t*2*Math.PI/6.2-0.9); // body lags
-	  }
-	  for(const k in cur){
+		  // posture: head leads, body follows with lag
+		  if(auto.idle&&!camLive){
+		    tgt.angleZ+=0.04*Math.sin(t*2*Math.PI/6.2); // head initiates lean
+		    tgt.body +=0.08*Math.sin(t*2*Math.PI/6.2-0.9); // body lags
+		  }
+		  // gesture playback
+		  if(gest.t>=0){
+		    gest.t+=dt*1000;
+		    gest.blend=Math.min(1,gest.blend+dt*3.3); // 300ms blend-in
+		    var g=GESTURES[gest.name];
+		    if(g.dur>0&&gest.t>g.dur){ // non-hold gesture ended
+		      gest.name='idle'; gest.t=-1; gest.blend=1;
+		      document.querySelectorAll('[data-gesture]').forEach(function(x){x.classList.remove('active');});
+		    }
+		  }
+		  if(gest.name!=='idle'&&gest.t>=0){
+		    var g=GESTURES[gest.name], b=gest.blend;
+		    var L=gestureLerp(g.L,gest.t), R=gestureLerp(g.R,gest.t);
+		    tgt.armYL+=L[0]*b; tgt.armPosL+=L[1]*b;
+		    tgt.armYR+=R[0]*b; tgt.armPosR+=R[1]*b;
+		  }
+		  for(const k in cur){
 	    const factor = (gaze.snap>0 && (k==='eyeX'||k==='eyeY')) ? Math.min(1,dt*60) : Math.min(1,dt*14);
 	    cur[k]+=(tgt[k]-cur[k])*factor;
 	  }
@@ -922,17 +1086,36 @@ function tick(now){
 	    if(pitchVel>0.005) tgt.brow=Math.min(1,tgt.brow+pitchVel*3);
 	    headPrevPitch=e.angleY;
 	  }
+	  // compute collision disks from anchors (for hair-strand tip repulsion)
+	  var disks = A ? [
+	    { cx:FC.x, cy:FC.cy, r:(A.face.x1-A.face.x0)*0.55 },                     // face
+	    { cx:A.neckPivot.cx, cy:A.neckPivot.cy-20, r:(A.face.x1-A.face.x0)*0.30 }, // neck
+	    { cx:CHEST.cx, cy:CHEST.cy, r:CHEST.rx*0.5 }                              // chest
+	  ] : [];
 	  for(const L of layers){
 	    if(!L.spr) continue;
-	    for(const sp of L.spr){
-	      const wind=auto.idle?(1.8*Math.sin(t*0.8+sp.phase)+1.0*Math.sin(t*1.9+sp.phase*2.3)):0;
+	    const S=L.strands||[];
+	    for(var si=0; si<L.spr.length; si++){
+	      const sp=L.spr[si];
+	      const windBase=auto.idle?(1.8*Math.sin(t*0.8+sp.phase)+1.0*Math.sin(t*1.9+sp.phase*2.3)):0;
+	      const wind=windBase+e.windX*2.5; // directional wind bias
 	      // lazy settle state for hair-oscillation on head reversal
 	      if(!sp._stl) sp._stl={amp:0,t:0};
 	      sp._stl.amp*=Math.exp(-dt*1.6);
 	      sp._stl.t+=dt;
 	      if(zeroCross&&Math.abs(headVel)>0.01) sp._stl.amp=Math.min(1.2,sp._stl.amp+Math.abs(headVel)*0.6);
 	      const settleOsc=sp._stl.amp*Math.cos(sp._stl.t*18)*Math.exp(-sp._stl.t*1.6);
-	      const txv=headDX+wind*FS+settleOsc*FS;
+	      let txv=headDX+wind*FS+settleOsc*FS;
+	      // tip repulsion from face/neck/chest disks
+	      if(disks.length&&S.length>si){
+	        const tipX=S[si].x+sp.soft.x; const tipY=S[si].tipY;
+	        for(var d=0;d<disks.length;d++){
+	          const dx=tipX-disks[d].cx, dy=tipY-disks[d].cy;
+	          const dist=Math.sqrt(dx*dx+dy*dy)||1e-4;
+	          const pen=(disks[d].r+8)-dist;
+	          if(pen>0){ txv+=(dx/dist)*pen*(1-Math.min(1,Math.abs(tipY-S[si].rootY)/40))*0.3; }
+	        }
+	      }
       let kk=70,cc=9;
       let axv=-kk*(sp.stiff.x-txv)-cc*sp.stiff.v; sp.stiff.v+=axv*dt; sp.stiff.x+=sp.stiff.v*dt;
       sp.stiff.dx=-(sp.stiff.x-txv)*2.2;
