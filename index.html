@@ -628,11 +628,12 @@ function onFace(res){
 }
 
 // ---------- animation state ----------
-let blink={state:'idle',t:0,nextAt:(typeof performance!=='undefined'?performance.now():0)+1800,depth:1,eye:'both',closures:1}; // blink state machine
+let blink={state:'idle',t:0,nextAt:(typeof performance!=='undefined'?performance.now():0)+1800,depth:1,eye:'both',closures:1,mouthBlip:false}; // blink state machine
 let rnd={ax:0,ay:0,az:0,bd:0,ex:0,ey:0}, nextRnd=0;
 let gaze={ex:0,ey:0,nextSaccade:0,dwellPhase:0,targetPhase:0,next:0,smoothPursuit:false,snap:0}; // micro-saccades + attention gaze targeting
 let talkOn=false, talkV=0, talkTgt=0, nextTalkState=0, nextSyl=0;
 let sigh={active:false,t:0,nextAt:(typeof performance!=='undefined'?performance.now():0)+20000+Math.random()*20000}; // breath-coupled sigh/yawn
+let headPrevDX=0, headPrevPitch=0, headPrevVel=0; // velocity tracking for hair settle + brow micro
 function clamp(v,a,b){return v<a?a:v>b?b:v}
 function smooth(t){t=clamp(t,0,1);return t*t*(3-2*t)}
 
@@ -842,7 +843,7 @@ function tick(now){
 	      } else {               // one-eye micro
 	        blink.depth=0.6; blink.closures=1; blink.eye=Math.random()<0.5?'L':'R';
 	      }
-	      blink.state='closing'; blink.t=0;
+	      blink.state='closing'; blink.t=0; blink.mouthBlip=false;
 	      blink.nextAt=now+1600+Math.random()*3800;
 	      if(Math.random()<0.18) blink.nextAt=now+280; // quick re-blink
 	    }
@@ -852,6 +853,8 @@ function tick(now){
 	      let v=1, done=false;
 	      if(blink.state==='closing'){
 	        v=1-(1-blink.depth)*Math.min(1,blink.t/0.08);
+	        // mouth-corner micro-twitch on blink close
+	        if(!blink.mouthBlip && v<0.3){ blink.mouthBlip=true; tgt.mouthForm=Math.min(1,tgt.mouthForm+0.04); }
 	        if(blink.t>=0.08){ blink.state='closed'; blink.t=0; }
 	      } else if(blink.state==='closed'){
 	        v=blink.depth;
@@ -908,13 +911,28 @@ function tick(now){
 	  if(auto.sigh&&sigh.active){ const p=Math.sin(Math.min(1,sigh.t/1.6)*Math.PI);
 	    e.breath*=(1+p*0.8); e.breathHead*=(1+p*0.6); }
 
-  // strand springs
-  const headDX=(e.angleX*14+e.angleZ*0.07*(NP.cy-FC.y))*FS;
-  for(const L of layers){
-    if(!L.spr) continue;
-    for(const sp of L.spr){
-      const wind=auto.idle?(1.8*Math.sin(t*0.8+sp.phase)+1.0*Math.sin(t*1.9+sp.phase*2.3)):0;
-      const txv=headDX+wind*FS;
+	  // strand springs + head-velocity-coupled secondary motion
+	  const headDX=(e.angleX*14+e.angleZ*0.07*(NP.cy-FC.y))*FS;
+	  const headVel=headDX-headPrevDX;
+	  const zeroCross=headPrevVel*headVel<-0.01;
+	  headPrevDX=headDX; headPrevVel=headVel;
+	  // brow micro-reaction on upward pitch (chin down = positive angleY velocity)
+	  if(auto.idle&&!camLive){
+	    const pitchVel=e.angleY-headPrevPitch;
+	    if(pitchVel>0.005) tgt.brow=Math.min(1,tgt.brow+pitchVel*3);
+	    headPrevPitch=e.angleY;
+	  }
+	  for(const L of layers){
+	    if(!L.spr) continue;
+	    for(const sp of L.spr){
+	      const wind=auto.idle?(1.8*Math.sin(t*0.8+sp.phase)+1.0*Math.sin(t*1.9+sp.phase*2.3)):0;
+	      // lazy settle state for hair-oscillation on head reversal
+	      if(!sp._stl) sp._stl={amp:0,t:0};
+	      sp._stl.amp*=Math.exp(-dt*1.6);
+	      sp._stl.t+=dt;
+	      if(zeroCross&&Math.abs(headVel)>0.01) sp._stl.amp=Math.min(1.2,sp._stl.amp+Math.abs(headVel)*0.6);
+	      const settleOsc=sp._stl.amp*Math.cos(sp._stl.t*18)*Math.exp(-sp._stl.t*1.6);
+	      const txv=headDX+wind*FS+settleOsc*FS;
       let kk=70,cc=9;
       let axv=-kk*(sp.stiff.x-txv)-cc*sp.stiff.v; sp.stiff.v+=axv*dt; sp.stiff.x+=sp.stiff.v*dt;
       sp.stiff.dx=-(sp.stiff.x-txv)*2.2;
