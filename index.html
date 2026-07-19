@@ -122,7 +122,8 @@ header h1{letter-spacing:.05em}
 	        <div class="tg" id="tgCam">Camera Tracking</div>
 	        <div class="tg" id="tgMouse">Mouse Tracking</div>
 	        <div class="tg" id="tgMic">Mic Lip-Sync</div>
-	        <div class="tg on" id="tgPhys">Hair Physics</div>
+		        <div class="tg on" id="tgPhys">Hair Physics</div>
+		        <div class="tg on" id="tgSigh">Sighs</div>
 	      </div>
 	    </div>
 	    <div class="sec"><h2>Expression Presets</h2>
@@ -389,7 +390,7 @@ const DEFAULTS = Object.assign({}, P);
 let lastPsd=null, lastPre=null;
 const T = Object.assign({}, P);
 const cur = Object.assign({}, P);
-const auto = { idle:true, blink:true, rand:true, talk:true, mouse:false, mic:false, phys:true, cam:false };
+const auto = { idle:true, blink:true, rand:true, talk:true, mouse:false, mic:false, phys:true, cam:false, sigh:true };
 
 const sliders = { pAngleX:'angleX',pAngleY:'angleY',pAngleZ:'angleZ',pEyeL:'eyeOpenL',pEyeR:'eyeOpenR',
   pEyeX:'eyeX',pEyeY:'eyeY',pBrow:'brow',pMouthOpen:'mouthOpen',pMouthForm:'mouthForm',
@@ -406,7 +407,7 @@ for(const id in sliders){
 function setSlider(key,val){ for(const id in sliders) if(sliders[id]===key){
   const el=document.getElementById(id); el.value=val; el.dispatchEvent(new Event('input')); } }
 
-[['tgIdle','idle'],['tgBlink','blink'],['tgRand','rand'],['tgTalk','talk'],['tgCam','cam'],['tgMouse','mouse'],['tgMic','mic'],['tgPhys','phys']].forEach(([id,key])=>{
+[['tgIdle','idle'],['tgBlink','blink'],['tgRand','rand'],['tgTalk','talk'],['tgCam','cam'],['tgMouse','mouse'],['tgMic','mic'],['tgPhys','phys'],['tgSigh','sigh']].forEach(([id,key])=>{
   const el=document.getElementById(id);
   el.addEventListener('click',()=>{ auto[key]=!auto[key]; el.classList.toggle('on',auto[key]);
     if(key==='mic'&&auto.mic) initMic();
@@ -627,9 +628,11 @@ function onFace(res){
 }
 
 // ---------- animation state ----------
-let blinkT=-1, nextBlink=(typeof performance!=='undefined'?performance.now():0)+1800;
+let blink={state:'idle',t:0,nextAt:(typeof performance!=='undefined'?performance.now():0)+1800,depth:1,eye:'both',closures:1}; // blink state machine
 let rnd={ax:0,ay:0,az:0,bd:0,ex:0,ey:0}, nextRnd=0;
+let gaze={ex:0,ey:0,nextSaccade:0,dwellPhase:0,targetPhase:0,next:0,smoothPursuit:false,snap:0}; // micro-saccades + attention gaze targeting
 let talkOn=false, talkV=0, talkTgt=0, nextTalkState=0, nextSyl=0;
+let sigh={active:false,t:0,nextAt:(typeof performance!=='undefined'?performance.now():0)+20000+Math.random()*20000}; // breath-coupled sigh/yawn
 function clamp(v,a,b){return v<a?a:v>b?b:v}
 function smooth(t){t=clamp(t,0,1);return t*t*(3-2*t)}
 
@@ -785,21 +788,40 @@ function tick(now){
   }
   if(!camLive&&auto.mouse&&mouse.in){ tgt.angleX=clamp(mouse.x*0.9,-1,1); tgt.angleY=clamp(-mouse.y*0.7,-1,1);
     tgt.eyeX=clamp(mouse.x*1.2,-1,1); tgt.eyeY=clamp(-mouse.y*0.8,-1,1); }
-  if(auto.idle&&!camLive){
-    tgt.angleX+=0.13*Math.sin(t*0.42)+0.05*Math.sin(t*1.13);
-    tgt.angleY+=0.08*Math.sin(t*0.31+1.7);
-    tgt.angleZ+=0.07*Math.sin(t*0.23+0.5);
-    tgt.body +=0.10*Math.sin(t*0.19+2.1);
-  }
-  if(auto.rand&&!camLive){
-    if(now>nextRnd){ nextRnd=now+1400+Math.random()*2600;
-      rnd.ax=(Math.random()*2-1)*0.55; rnd.ay=(Math.random()*2-1)*0.40;
-      rnd.az=(Math.random()*2-1)*0.35; rnd.bd=(Math.random()*2-1)*0.30;
-      rnd.ex=(Math.random()*2-1)*0.60; rnd.ey=(Math.random()*2-1)*0.35; }
-    tgt.angleX=clamp(tgt.angleX+rnd.ax,-1,1); tgt.angleY=clamp(tgt.angleY+rnd.ay,-1,1);
-    tgt.angleZ=clamp(tgt.angleZ+rnd.az,-1,1); tgt.body=clamp(tgt.body+rnd.bd,-1,1);
-    tgt.eyeX=clamp(tgt.eyeX+rnd.ex,-1,1); tgt.eyeY=clamp(tgt.eyeY+rnd.ey,-1,1);
-  }
+	  if(auto.idle&&!camLive){
+	    tgt.angleX+=0.13*Math.sin(t*0.42)+0.05*Math.sin(t*1.13);
+	    tgt.angleY+=0.08*Math.sin(t*0.31+1.7);
+	    tgt.angleZ+=0.07*Math.sin(t*0.23+0.5);
+	    tgt.body +=0.10*Math.sin(t*0.19+2.1);
+	    // saccadic gaze — fixate, jump, fixate (replaces former uniform eye drift)
+	    if(now>gaze.next){
+	      gaze.snap=20; // ms — fast-track smoothing for this saccade
+	      if(Math.random()<0.05&&!gaze.smoothPursuit){
+	        // 5% smooth-pursuit: target drifts during dwell instead of holding
+	        gaze.smoothPursuit=true; gaze.targetPhase=Math.random()*100;
+	      } else { gaze.smoothPursuit=false; }
+	      gaze.ex=(Math.random()*2-1)*0.5; gaze.ey=(Math.random()*2-1)*0.35;
+	      gaze.next=now+600+Math.random()*2400;
+	      gaze.dwellPhase=Math.random()*100;
+	    }
+	    let gx=gaze.ex, gy=gaze.ey;
+	    if(gaze.smoothPursuit){
+	      gx+=0.15*Math.sin(t*0.6+gaze.targetPhase);
+	      gy+=0.10*Math.sin(t*0.4+gaze.targetPhase*1.3);
+	    }
+	    // always-on micro-jitter ~2-3 Hz
+	    gx+=0.012*Math.sin(t*13+gaze.dwellPhase);
+	    gy+=0.008*Math.sin(t*9+gaze.dwellPhase*1.7);
+	    tgt.eyeX=clamp(tgt.eyeX+gx,-1,1);
+	    tgt.eyeY=clamp(tgt.eyeY+gy,-1,1);
+	  }
+	  if(auto.rand&&!camLive){
+	    if(now>nextRnd){ nextRnd=now+1400+Math.random()*2600;
+	      rnd.ax=(Math.random()*2-1)*0.55; rnd.ay=(Math.random()*2-1)*0.40;
+	      rnd.az=(Math.random()*2-1)*0.35; rnd.bd=(Math.random()*2-1)*0.30; }
+	    tgt.angleX=clamp(tgt.angleX+rnd.ax,-1,1); tgt.angleY=clamp(tgt.angleY+rnd.ay,-1,1);
+	    tgt.angleZ=clamp(tgt.angleZ+rnd.az,-1,1); tgt.body=clamp(tgt.body+rnd.bd,-1,1);
+	  }
   if(auto.talk){
     if(now>nextTalkState){ talkOn=!talkOn; nextTalkState=now+(talkOn?1200+Math.random()*2200:600+Math.random()*1800); }
     if(talkOn&&now>nextSyl){ nextSyl=now+70+Math.random()*110; talkTgt=Math.random()<0.25?0.04:0.25+Math.random()*0.75; }
@@ -807,25 +829,84 @@ function tick(now){
     talkV+=(talkTgt-talkV)*Math.min(1,dt*22);
     tgt.mouthOpen=Math.max(tgt.mouthOpen,talkV);
   }
-  if(auto.blink){
-    if(blinkT<0 && now>nextBlink){ blinkT=0; nextBlink=now+1600+Math.random()*3800; if(Math.random()<0.18)nextBlink=now+280; }
-    if(blinkT>=0){ blinkT+=dt;
-      const d=blinkT; let v;
-      if(d<0.08)v=1-d/0.08; else if(d<0.42)v=0; else if(d<0.58)v=(d-0.42)/0.16; else{v=1;blinkT=-1;}
-      tgt.eyeOpenL=Math.min(tgt.eyeOpenL,v); tgt.eyeOpenR=Math.min(tgt.eyeOpenR,v);
-    }
-  }
-  if(auto.mic&&analyser){ analyser.getByteFrequencyData(micBuf);
-    let s=0; for(let i=2;i<40;i++)s+=micBuf[i]; s/=38*255;
-    micLevel+=(clamp(s*3.2,0,1)-micLevel)*0.45;
-    tgt.mouthOpen=Math.max(tgt.mouthOpen,micLevel);
-  }
-  for(const k in cur) cur[k]+=(tgt[k]-cur[k])*Math.min(1,dt*14);
-  const e=Object.assign({},cur);
+	  if(auto.blink){
+	    // --- schedule next blink ---
+	    if(blink.state==='idle' && now>blink.nextAt){
+	      const roll=Math.random();
+	      if(roll<0.70){      // normal full
+	        blink.depth=1; blink.closures=1; blink.eye='both';
+	      } else if(roll<0.82){ // half blink (common during concentration)
+	        blink.depth=0.45; blink.closures=1; blink.eye='both';
+	      } else if(roll<0.95){ // double blink
+	        blink.depth=1; blink.closures=2; blink.eye='both';
+	      } else {               // one-eye micro
+	        blink.depth=0.6; blink.closures=1; blink.eye=Math.random()<0.5?'L':'R';
+	      }
+	      blink.state='closing'; blink.t=0;
+	      blink.nextAt=now+1600+Math.random()*3800;
+	      if(Math.random()<0.18) blink.nextAt=now+280; // quick re-blink
+	    }
+	    // --- run blink envelope ---
+	    if(blink.state!=='idle'){
+	      blink.t+=dt;
+	      let v=1, done=false;
+	      if(blink.state==='closing'){
+	        v=1-(1-blink.depth)*Math.min(1,blink.t/0.08);
+	        if(blink.t>=0.08){ blink.state='closed'; blink.t=0; }
+	      } else if(blink.state==='closed'){
+	        v=blink.depth;
+	        if(blink.t>=0.34){ blink.state='opening'; blink.t=0; }
+	      } else if(blink.state==='opening'){
+	        v=blink.depth+(1-blink.depth)*Math.min(1,blink.t/0.16);
+	        if(blink.t>=0.16){
+	          if(blink.closures>1){ blink.state='reclose'; blink.t=0; }
+	          else { done=true; }
+	        }
+	      } else if(blink.state==='reclose'){
+	        v=1;
+	        if(blink.t>=0.12){ blink.closures--; blink.state='closing'; blink.t=0; }
+	      }
+	      if(blink.eye!=='R') tgt.eyeOpenL=Math.min(tgt.eyeOpenL,v);
+	      if(blink.eye!=='L') tgt.eyeOpenR=Math.min(tgt.eyeOpenR,v);
+	      if(done) blink.state='idle';
+	    }
+	  }
+	  if(auto.mic&&analyser){ analyser.getByteFrequencyData(micBuf);
+	    let s=0; for(let i=2;i<40;i++)s+=micBuf[i]; s/=38*255;
+	    micLevel+=(clamp(s*3.2,0,1)-micLevel)*0.45;
+	    tgt.mouthOpen=Math.max(tgt.mouthOpen,micLevel);
+	  }
+	  // sigh/yawn envelope
+	  if(auto.sigh){
+	    if(now>sigh.nextAt){ sigh.active=true; sigh.t=0; sigh.nextAt=now+20000+Math.random()*40000; }
+	    if(sigh.active){
+	      sigh.t+=dt;
+	      if(sigh.t>1.6){ sigh.active=false; } else {
+	        const p=Math.sin(Math.min(1,sigh.t/1.6)*Math.PI); // 0→1→0
+	        tgt.brow=Math.min(1,tgt.brow+p*0.25);
+	        tgt.angleY=clamp(tgt.angleY-p*0.08,-1,1);
+	        tgt.mouthOpen=Math.max(tgt.mouthOpen,p*0.15);
+	      }
+	    }
+	  }
+	  // posture: head leads, body follows with lag
+	  if(auto.idle&&!camLive){
+	    tgt.angleZ+=0.04*Math.sin(t*2*Math.PI/6.2); // head initiates lean
+	    tgt.body +=0.08*Math.sin(t*2*Math.PI/6.2-0.9); // body lags
+	  }
+	  for(const k in cur){
+	    const factor = (gaze.snap>0 && (k==='eyeX'||k==='eyeY')) ? Math.min(1,dt*60) : Math.min(1,dt*14);
+	    cur[k]+=(tgt[k]-cur[k])*factor;
+	  }
+	  if(gaze.snap>0) gaze.snap-=dt*1000;
+	  const e=Object.assign({},cur);
   camPhysScale+=((camLive?0.5:1)-camPhysScale)*Math.min(1,dt*4);
   e.physAmp*=camPhysScale; e.soft*=camPhysScale; e.fhAmp*=camPhysScale; e.fhSoft*=camPhysScale;
-  e.breath=0.5+0.5*Math.sin(t*2*Math.PI/3.4);
-  e.breathHead=0.5+0.5*Math.sin(t*2*Math.PI/3.4-0.6);   // head follows chest with a lag
+	  e.breath=0.5+0.5*Math.sin(t*2*Math.PI/3.4);
+	  e.breathHead=0.5+0.5*Math.sin(t*2*Math.PI/3.4-0.6);   // head follows chest with a lag
+	  // sigh amplifies breath locally
+	  if(auto.sigh&&sigh.active){ const p=Math.sin(Math.min(1,sigh.t/1.6)*Math.PI);
+	    e.breath*=(1+p*0.8); e.breathHead*=(1+p*0.6); }
 
   // strand springs
   const headDX=(e.angleX*14+e.angleZ*0.07*(NP.cy-FC.y))*FS;

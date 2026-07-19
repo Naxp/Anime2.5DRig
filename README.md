@@ -66,6 +66,15 @@ Layer names (Japanese "のコピー" and full-width characters are auto-normaliz
 
 Expression presets (smile/surprise/squint/wink left/right), independent left/right eye openness, eyebrow angle (independent + symmetric), gaze, iris scale, eye/mouth "close-ease" thresholds, front hair 3-block manipulation with **dedicated front-hair sway and softness**, arm height/position, chest bounce (adjustable intensity and position), body tilt, idle/random motion, random lip-sync, mic lip-sync, mouse tracking, **webcam tracking** (head XYZ, left/right blink, mouth, gaze), background switching (transparent/green screen).
 
+## Roadmap
+
+Work is tracked in [`docs/`](./docs):
+
+- **[Phase 1 — Natural-movement & authoring features](./docs/01-phase1-features.md)** — 4 default idle animations (saccades, blink variation, breath-coupled sway + sighs, motion-coupled secondary action) + 6 core features (visemes, preset/timeline, gestures, video export, folder support, hair collision/wind).
+- **[Phase 2 — Headless API & standalone export](./docs/02-phase2-api-export.md)** — host rigs as controllable API instances. *Planning stub; will be expanded after Phase 1.*
+
+See [`docs/ROADMAP.md`](./docs/ROADMAP.md) for the master index and status.
+
 ## Structure
 
 ```
