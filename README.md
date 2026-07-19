@@ -1,93 +1,94 @@
 # Anime2.5DRig
 
-デモ: https://852wa.github.io/Anime2.5DRig/
+Demo: https://852wa.github.io/Anime2.5DRig/
 
-パーツ分けPSDをブラウザにドロップするだけで、自動リギングされて動き出す 2.5D アバターツールです。
-従来は手作業だったセットアップ（メッシュ分割・変形・物理設定）を自動化します。インストール不要・全処理クライアントサイド。
+A 2.5D avatar tool that automatically rigs and animates a separated-part PSD just by dropping it onto the browser.
+It automates the setup (mesh division, deformation, physics configuration) that was previously done manually.
+No installation required — all processing is client-side.
 
-## デモ / 使い方
+## Demo / Usage
 
-1. このリポジトリを GitHub Pages で公開（Settings → Pages → Branch: main / root）するか、ローカルで:
+1. Publish this repository on GitHub Pages (Settings → Pages → Branch: main / root), or run locally:
    ```
    python -m http.server 8000
    # → http://localhost:8000
    ```
-2. ページを開き、パーツ分けPSDをドロップ（または「sample.psd を読み込む」）。
-3. 自動リグが走り、その場でアイドルモーション・まばたき・口パク・髪物理付きで動きます。
+2. Open the page, drop a separated-part PSD (or click "Load sample.psd").
+3. Auto-rigging runs and the avatar animates immediately with idle motion, blinking, lip-sync, and hair physics.
 
-> カメラ追従（MediaPipe FaceMesh）とマイク口パクは https または localhost でのみ動作します（ブラウザの権限仕様）。file:// 直開きでもドロップ再生は可能です。
+> Camera tracking (MediaPipe FaceMesh) and mic lip-sync only work over https or localhost (due to browser permission restrictions). Drop-and-play works even when opened with `file://`.
 
-## 自動で行われること
+## What happens automatically
 
-- [see-through](https://github.com/shitagaki-lab/see-through) の出力PSDをそのまま受け入れ（`mouth`→`mouth_open` 自動リネーム）
-- **閉じ目・閉じ口差分が無い場合、汎用差分を自動生成**（アンカーに合わせてスケール・配置し、まつ毛/口の色に自動調整。専用バーで位置・角度を微調整可能）
-  - 差分の元絵はリポジトリ直下の `eye_close.psd`（左右両目を1枚・間を空けて）/ `mouth_close.psd` を優先使用。無ければ内蔵データを使用
-- 低アルファノイズ除去（連結成分フィルタ）
-- 目・眉・まつ毛・閉じ目の**左右自動分離**（連結成分の重心で判定）
-- まぶた位置・虹彩中心・口・首ピボットなど**アンカーの自動検出**
-- 髪の**房（ストランド）自動検出**（毛先輪郭のピーク検出、1レイヤーにつき最大6房）
-- レイヤーごとの深度割当てによる**擬似3D首振り**（パララックス+シアー）
-- 房ごとの2重バネ物理（**根元は固く・毛先はふわふわ**）、胸の揺れ、呼吸
-- 閉じ目/閉じ口差分の**クロスフェード**、瞳のステンシルクリップ（白目内に制限）
+- Accepts [see-through](https://github.com/shitagaki-lab/see-through) output PSDs directly (`mouth`→`mouth_open` auto-rename)
+- **Synthesizes generic close-diff parts when closed-eye/closed-mouth diffs are missing** (scaled and positioned to match anchors, auto-adjusted to eyelash/mouth color; fine-tune position and angle via dedicated sliders)
+  - Prefers `eye_close.psd` (both eyes on one layer, spaced apart) / `mouth_close.psd` from the repository root. Falls back to built-in data.
+- Low-alpha noise removal (connected component filtering)
+- **Automatic left/right separation** of eyes, eyebrows, eyelashes, and closed-eye parts (determined by connected component centroids)
+- **Automatic anchor detection** for eyelid position, iris center, mouth, neck pivot, etc.
+- **Automatic hair strand detection** (peak detection of hair-tip contour, up to 6 strands per layer)
+- **Pseudo-3D head rotation** via per-layer depth assignment (parallax + shear)
+- Per-strand double spring physics (**stiff at root, fluffy at tip**), chest bounce, breathing
+- **Cross-fade** for closed-eye/closed-mouth diffs, iris stencil clipping (confined to eye whites)
 
-## レイヤー命名規約
+## Layer Naming Convention
 
-レイヤー名（日本語の「のコピー」や全角文字は自動正規化されます）:
+Layer names (Japanese "のコピー" and full-width characters are auto-normalized):
 
-| レイヤー名 | 内容 | 必須 | 備考 |
+| Layer Name | Content | Required | Notes |
 |---|---|---|---|
-| `face` | 顔ベース | ◎ | アンカーの基準。これだけは必ず |
-| `eyewhite` | 白目（左右両方） | ○ | 左右は自動分離 |
-| `irides` | 虹彩（左右両方） | ○ | 視線移動・瞳スケール対象 |
-| `eyelash` | まつ毛（開き目） | ○ | |
-| `eye_close` | 閉じ目 | ○ | まばたきでクロスフェード |
-| `eyebrow` | 眉（左右両方） | ○ | 角度・上下操作対象 |
-| `mouth_open` | 開き口 | ○ | 開度で顎が下がる |
-| `mouth_close` | 閉じ口 | ○ | |
-| `nose` | 鼻 | | |
-| `ears` | 耳 | | |
-| `earwear` | 耳飾り | | |
-| `neck` | 首 | | 上端は頭に追従 |
-| `topwear` | 上半身の服 | | 呼吸・胸の揺れ対象 |
-| `bottomwear` | 下半身の服 | | |
-| `handwear` | 腕・手 | | 腕の高さ操作対象 |
-| `headwear` | 帽子・カチューシャ等 | | |
-| `front hair` | 前髪 | | 房物理+3ブロック操作 |
-| `back hair` | 後髪 | | 房物理 |
+| `face` | Face base | Required | Anchor reference. This one is mandatory |
+| `eyewhite` | Eye whites (both sides) | Optional | Auto-separated left/right |
+| `irides` | Irises (both sides) | Optional | Target for gaze movement and iris scaling |
+| `eyelash` | Eyelashes (open eye) | Optional | |
+| `eye_close` | Closed eyes | Optional | Cross-fades during blinking |
+| `eyebrow` | Eyebrows (both sides) | Optional | Target for angle and vertical control |
+| `mouth_open` | Open mouth | Optional | Opens the jaw by degree |
+| `mouth_close` | Closed mouth | Optional | |
+| `nose` | Nose | | |
+| `ears` | Ears | | |
+| `earwear` | Ear accessories | | |
+| `neck` | Neck | | Top follows the head |
+| `topwear` | Upper body clothing | | Subject to breathing and chest bounce |
+| `bottomwear` | Lower body clothing | | |
+| `handwear` | Arms/hands | | Target for arm height control |
+| `headwear` | Hat, headband, etc. | | |
+| `front hair` | Front hair | | Strand physics + 3-block manipulation |
+| `back hair` | Back hair | | Strand physics |
 
-- **髪を複数レイヤーに分ける場合**: `front hair_1`, `front hair_2`, `back hair_1` … のように `_連番` を付けると、各レイヤーが独立した房グループとして物理演算されます（房数はレイヤー幅から自動決定）。
-- 規約にない名前のレイヤーも読み込まれます（位置から頭部/胴体を推定して追従のみ）。
-- レイヤーグループ（フォルダ）は未対応です。フラットな構成にしてください。
-- **首（neck）と胴体（topwear）について**: see-through の出力をそのまま使うと首と胴体の前後関係の解決が難しく、動かした際に境目が破綻することがあります。うまくいかない場合は、首を胴体レイヤーに統合した**一体型**（neckレイヤーなし、topwearに首まで含める）にした方が成功しやすいです。
-- キャンバスは正方形推奨（768×768〜2048×2048で動作確認）。
+- **Splitting hair across multiple layers**: Use `front hair_1`, `front hair_2`, `back hair_1`, etc. with `_number` suffixes. Each layer becomes an independent strand group with its own physics (strand count is auto-determined from layer width).
+- Layers with non-convention names are still loaded (position-based estimation of head/torso, with follow behavior only).
+- Layer groups (folders) are **not supported**. Use a flat layer structure.
+- **Neck and torso**: Using see-through output as-is can make it difficult to resolve the neck-torso depth relationship, which may cause artifacts at the boundary during animation. If this happens, merging the neck into the torso layer (no neck layer, with the neck included in topwear) tends to work better.
+- Square canvas is recommended (tested with 768×768 to 2048×2048).
 
-## 機能
+## Features
 
-表情プリセット（笑顔/驚き/ジト目/ウインク左右）、左右独立の目の開き、眉角度（左右独立+対称）、視線、瞳スケール、目/口の「閉じやすさ」しきい値、前髪3ブロック操作と**前髪専用の揺れ・柔らかさ**、腕の高さ/位置、胸の揺れ（強さ・位置調整可）、体の傾き、アイドル/ランダムモーション、ランダム口パク、マイク口パク、マウス追従、**ウェブカメラ追従**（頭XYZ・まばたき左右・口・視線）、背景切替（透過/グリーンバック）。
+Expression presets (smile/surprise/squint/wink left/right), independent left/right eye openness, eyebrow angle (independent + symmetric), gaze, iris scale, eye/mouth "close-ease" thresholds, front hair 3-block manipulation with **dedicated front-hair sway and softness**, arm height/position, chest bounce (adjustable intensity and position), body tilt, idle/random motion, random lip-sync, mic lip-sync, mouse tracking, **webcam tracking** (head XYZ, left/right blink, mouth, gaze), background switching (transparent/green screen).
 
-## 構成
+## Structure
 
 ```
-index.html      アプリ本体（UI + WebGLランタイム）
-lib/rigger.js   自動リグ生成（純TypedArray実装、Node でもテスト可能）
-lib/ag-psd.min.js  PSDパーサ（ag-psd, MIT）
-lib/genericparts.js  汎用閉じ目・閉じ口差分（内蔵フォールバック）
-eye_close.psd    閉じ目差分の元絵（任意・差し替え可）
-mouth_close.psd  閉じ口差分の元絵（任意・差し替え可）
-sample.psd      サンプルモデル（各自で配置）
+index.html      App body (UI + WebGL runtime)
+lib/rigger.js   Auto-rig generation (pure TypedArray implementation, testable in Node)
+lib/ag-psd.min.js  PSD parser (ag-psd, MIT)
+lib/genericparts.js  Generic closed-eye/closed-mouth diff parts (built-in fallback)
+eye_close.psd    Source image for closed-eye diff (optional, replaceable)
+mouth_close.psd  Source image for closed-mouth diff (optional, replaceable)
+sample.psd       Sample model (place your own)
 ```
 
-ランタイムは WebGL1（メッシュワープ+ステンシル）。外部通信はカメラ追従を有効化した時の MediaPipe CDN 読み込みのみです。
+The runtime uses WebGL1 (mesh warp + stencil). External communication is limited to MediaPipe CDN loading when camera tracking is enabled.
 
-## 既知の制限
+## Known Limitations
 
-- 一枚絵の分解はアプリ内では行いません。[see-through公式デモ（HuggingFace Space）](https://huggingface.co/spaces/24yearsold/see-through-demo)等で分割したPSDをドロップしてください（後処理は全自動）
-- 口の開きは差分切替+変形の簡易表現（中間差分が増えると滑らかになります）
-- 深度は名前ベースの固定テーブル（レイヤー順は PSD のまま尊重）
+- The app does not decompose single illustrations into parts. Use [see-through official demo (HuggingFace Space)](https://huggingface.co/spaces/24yearsold/see-through-demo) to split and drop the resulting PSD (post-processing is fully automatic).
+- Mouth opening is a simplified diff-switching + deformation expression (smoother with more intermediate diffs).
+- Depth is based on a name-based fixed table (layer order respects the original PSD).
 
 ## License
 
-MIT（同梱の ag-psd も MIT、MediaPipe は Apache-2.0 を CDN 参照）。
+MIT (bundled ag-psd is also MIT, MediaPipe references Apache-2.0 via CDN).
 
-一枚絵のレイヤー分解には [shitagaki-lab/see-through](https://github.com/shitagaki-lab/see-through)（Apache-2.0, SIGGRAPH 2026）の利用を想定しています。本ツールは同プロジェクトの出力PSDの後処理・リギングを担う独立したサードパーティ製ツールであり、see-through のコード・モデルは同梱していません。
-**サンプルPSD の絵の権利は各作者に帰属します。** 自作モデルを配布する場合はご自身の権利物をお使いください。
+For single-illustration layer decomposition, usage of [shitagaki-lab/see-through](https://github.com/shitagaki-lab/see-through) (Apache-2.0, SIGGRAPH 2026) is assumed. This tool is an independent third-party tool responsible for post-processing and rigging of that project's output PSDs, and does not include see-through's code or models.
+**The copyright of sample PSD illustrations belongs to their respective authors.** When distributing your own models, use your own copyrighted material.
